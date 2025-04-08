@@ -16,19 +16,6 @@ async def get_db():
         db.close()
 
 
-@user_router.post('/', response_model=UserProfileSchema)
-async def user_create(user: UserProfileSchema, db: Session = Depends(get_db)):
-    user_db = db.query(UserProfile).filter(UserProfile.username == user.username).first()
-    if user_db:
-        raise HTTPException(status_code=404, detail='already exists in db')
-
-    user_db = UserProfile(**user.dict())
-    db.add(user_db)
-    db.commit()
-    db.refresh(user_db)
-    return user_db
-
-
 @user_router.get('/', response_model=List[UserProfileSchema])
 async def user_list(db: Session = Depends(get_db)):
     return db.query(UserProfile).all()

@@ -1,5 +1,5 @@
 from todo_app.db.models import Task
-from todo_app.db.schema import TaskSchema
+from todo_app.db.schema import TaskSchema, TaskCreateSchema, TaskUpdateSchema
 from todo_app.db.database import SessionLocal
 from sqlalchemy.orm import Session
 from typing import List
@@ -16,8 +16,8 @@ async def get_db():
         db.close()
 
 
-@task_router.post('/', response_model=TaskSchema)
-async def task(task: TaskSchema, db: Session = Depends(get_db)):
+@task_router.post('/', response_model=TaskCreateSchema)
+async def task(task: TaskCreateSchema, db: Session = Depends(get_db)):
     task_db = Task(**task.dict())
     db.add(task_db)
     db.commit()
@@ -41,13 +41,12 @@ async def task_detail(user_id: int, task_id: int, db: Session = Depends(get_db))
 
 
 @task_router.put('/{task_id}/', response_model=TaskSchema)
-async def task_update(task_id: int, task: TaskSchema, db: Session = Depends(get_db)):
+async def task_update(task_id: int, task: TaskUpdateSchema, db: Session = Depends(get_db)):
     task_db = db.query(Task).filter(Task.id == task_id).first()
     if not task_db:
         raise HTTPException(status_code=404, detail='Task not found')
 
-    for task_key, task_value in task.dict().items():
-        setattr(task_db, task_key, task_value)
+    task_db.status = task.status
 
     db.add(task_db)
     db.commit()

@@ -51,10 +51,9 @@ class Task(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String(32), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
-    # validate time can't be set in future
     deadline: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     status: Mapped[str] = mapped_column(Enum(StatusChoices), default=StatusChoices.to_do.value)
     created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    user_id: Mapped[int] = mapped_column(ForeignKey('user_profile.id'))
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey('user_profile.id'), nullable=True)
 
     user: Mapped['UserProfile'] = relationship('UserProfile', back_populates='tasks')
