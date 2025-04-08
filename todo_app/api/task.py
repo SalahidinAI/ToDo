@@ -26,8 +26,9 @@ async def task(task: TaskCreateSchema, db: Session = Depends(get_db)):
 
 
 @task_router.get('/', response_model=List[TaskSchema])
-async def task_list(user_id: int, db: Session = Depends(get_db)):
-    tasks_db = db.query(Task).filter(Task.user_id == user_id).all()
+async def task_list(user_id: int, db: Session = Depends(get_db),
+                    skip: int = 0, limit: int = 10):
+    tasks_db = db.query(Task).filter(Task.user_id == user_id).offset(skip).limit(limit).all()
     return tasks_db
 
 
